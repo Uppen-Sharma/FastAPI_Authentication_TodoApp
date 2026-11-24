@@ -35,13 +35,14 @@ Open http://localhost:5173
 
 ## Settings
 
-Create `server/.env` and `client/.env` (they are not committed).
+The `.env` files are not committed. Copy the examples and fill them in:
 
-`server/.env`: `JWT_ALGORITHM`, `ACCESS_TOKEN_SECRET_KEY`, `ACCESS_TOKEN_EXPIRE_MINUTES`, `REFRESH_TOKEN_SECRET_KEY`, `REFRESH_TOKEN_EXPIRE_DAYS`, `SESSION_MAX_DAYS`, `CORS_ORIGINS`, `DB_URL`, `COOKIE_SECURE`, `AUTH_RATE_LIMIT`, `REFRESH_GRACE_SECONDS`
+```
+cp server/.env.example server/.env
+cp client/.env.example client/.env
+```
 
-`client/.env`: `VITE_API_URL`, `VITE_CLIENT_PORT`
-
-Use long random values for the two secret keys, for example `python -c "import secrets; print(secrets.token_hex(32))"`.
+Fill in `ACCESS_TOKEN_SECRET_KEY` and `REFRESH_TOKEN_SECRET_KEY` in `server/.env` with two different long random values, for example `python -c "import secrets; print(secrets.token_hex(32))"`.
 
 ## Demo users
 
