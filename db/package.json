@@ -1,0 +1,11 @@
+{
+  "name": "db",
+  "private": true,
+  "version": "0.0.0",
+  "scripts": {
+    "start": "json-server db.json --host localhost --port 4000"
+  },
+  "dependencies": {
+    "json-server": "^0.17.4"
+  }
+}

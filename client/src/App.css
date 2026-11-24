@@ -1,0 +1,144 @@
+#root {
+  width: 520px;
+  border-inline: none;
+  text-align: left;
+  justify-content: center;
+  padding: 24px 16px;
+}
+
+h1 {
+  font-size: 28px;
+  letter-spacing: normal;
+  margin: 0 0 4px;
+}
+
+.card {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+  padding: 24px;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.row {
+  display: flex;
+  gap: 8px;
+  margin: 20px 0 12px;
+}
+
+.top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.muted {
+  color: var(--text);
+  font-size: 15px;
+}
+
+.success {
+  color: #30a46c;
+  font-size: 15px;
+  margin: 8px 0;
+}
+
+.error {
+  color: #e5484d;
+  font-size: 15px;
+  margin: 8px 0;
+}
+
+input:not([type="checkbox"]) {
+  flex: 1;
+  padding: 10px 12px;
+  font: inherit;
+  color: var(--text-h);
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  outline: none;
+}
+
+input:not([type="checkbox"]):focus {
+  border-color: var(--accent);
+}
+
+input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--accent);
+  cursor: pointer;
+}
+
+button {
+  padding: 10px 16px;
+  font: inherit;
+  color: #fff;
+  background: var(--accent);
+  border: 1px solid transparent;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+button:hover {
+  opacity: 0.9;
+}
+
+button.secondary {
+  color: var(--text-h);
+  background: transparent;
+  border-color: var(--border);
+}
+
+button.danger {
+  padding: 6px 10px;
+  font-size: 14px;
+  color: #e5484d;
+  background: transparent;
+  border-color: var(--border);
+}
+
+.todos {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.todos li {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 0;
+  border-top: 1px solid var(--border);
+}
+
+.todos li span {
+  flex: 1;
+  color: var(--text-h);
+}
+
+.todos li.done span {
+  text-decoration: line-through;
+  color: var(--text);
+}
+
+.todos li.empty {
+  justify-content: center;
+}
+
+a {
+  color: var(--accent);
+}
+
+.section {
+  font-size: 18px;
+  margin: 28px 0 4px;
+}

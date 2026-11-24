@@ -1,0 +1,31 @@
+{
+  "users": [
+    {
+      "id": 1,
+      "username": "alice",
+      "password_hash": "$argon2id$v=19$m=65536,t=3,p=4$G1vdw2G06d/gmCHRaWyNjw$AacAoFWBmR2kpC2JXMZ2D0qSvkXjL3Xizhk/8D9GoqM",
+      "role": "admin"
+    },
+    {
+      "id": 2,
+      "username": "bob",
+      "password_hash": "$argon2id$v=19$m=65536,t=3,p=4$Ro2YCqA+X5cm9IC1sYtF3w$XHsPzAgvokusTLQ5Mch8OCHJL4tkHkPLFPXRMtySrFA",
+      "role": "client"
+    }
+  ],
+  "todos": [
+    {
+      "id": 1,
+      "user_id": 1,
+      "title": "Learn FastAPI",
+      "done": false
+    },
+    {
+      "id": 2,
+      "user_id": 2,
+      "title": "Learn refresh tokens",
+      "done": false
+    }
+  ],
+  "refresh_tokens": []
+}
