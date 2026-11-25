@@ -1,5 +1,9 @@
 import { useEffect, useState } from "react";
 import { api, logout } from "../api";
+import OtherTodos from "../components/OtherTodos";
+import TodoForm from "../components/TodoForm";
+import TodoHeader from "../components/TodoHeader";
+import TodoList from "../components/TodoList";
 
 // Todo page
 export default function Todos({ user, onLogout }) {
@@ -13,7 +17,6 @@ export default function Todos({ user, onLogout }) {
   // Own and other todos
   const todos = all.filter((t) => t.user_id === user.id);
   const others = all.filter((t) => t.user_id !== user.id);
-  const owners = [...new Set(others.map((t) => t.owner))];
 
   // Load todos
   useEffect(() => {
@@ -62,73 +65,14 @@ export default function Todos({ user, onLogout }) {
 
   return (
     <div className="card">
-      <div className="top">
-        <div>
-          <h1>My Todos</h1>
-          <p className="muted">
-            Logged in as <strong>{user.username}</strong> ({user.role})
-          </p>
-        </div>
-        <button className="secondary" onClick={onLogoutClick}>
-          Logout
-        </button>
-      </div>
-
-      <form className="row" onSubmit={add}>
-        <input
-          placeholder="New todo"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          required
-        />
-        <button type="submit">Add</button>
-      </form>
+      <TodoHeader user={user} onLogout={onLogoutClick} />
+      <TodoForm title={title} onTitleChange={setTitle} onSubmit={add} />
 
       {error && <p className="error">{error}</p>}
 
-      <ul className="todos">
-        {todos.map((t) => (
-          <li key={t.id} className={t.done ? "done" : ""}>
-            <input
-              type="checkbox"
-              checked={t.done}
-              onChange={() => toggle(t)}
-            />
-            <span>{t.title}</span>
-            <button className="danger" onClick={() => remove(t.id)}>
-              Delete
-            </button>
-          </li>
-        ))}
-        {todos.length === 0 && <li className="muted empty">No todos yet.</li>}
-      </ul>
+      <TodoList todos={todos} onToggle={toggle} onRemove={remove} />
 
-      {isAdmin && (
-        <>
-          <h2 className="section">Other users&apos; todos</h2>
-          {owners.map((owner) => (
-            <div key={owner} className="owner">
-              <h3>{owner}</h3>
-              <ul className="todos">
-                {others
-                  .filter((t) => t.owner === owner)
-                  .map((t) => (
-                    <li key={t.id} className={t.done ? "done" : ""}>
-                      <input type="checkbox" checked={t.done} disabled />
-                      <span>{t.title}</span>
-                      <button className="danger" onClick={() => remove(t.id)}>
-                        Delete
-                      </button>
-                    </li>
-                  ))}
-              </ul>
-            </div>
-          ))}
-          {owners.length === 0 && (
-            <p className="muted">No todos from other users.</p>
-          )}
-        </>
-      )}
+      {isAdmin && <OtherTodos todos={others} onRemove={remove} />}
     </div>
   );
 }
