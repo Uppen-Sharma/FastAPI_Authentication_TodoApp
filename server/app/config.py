@@ -1,5 +1,4 @@
 import os
-import httpx
 from dotenv import load_dotenv
 
 # Load .env
@@ -37,6 +36,3 @@ AUTH_RATE_LIMIT = os.getenv("AUTH_RATE_LIMIT", "5/minute")
 
 # Grace period for old sessions
 REFRESH_GRACE_SECONDS = int(os.getenv("REFRESH_GRACE_SECONDS", "10"))
-
-# Database client
-db = httpx.Client(base_url=DB_URL)

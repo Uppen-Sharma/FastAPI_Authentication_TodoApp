@@ -1,31 +1,15 @@
 from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
-from slowapi.errors import RateLimitExceeded
-from app.config import CORS_ORIGINS
-from app.limiter import limiter
+
+from app.middleware.cors import add_cors
+from app.middleware.rate_limit import add_rate_limit
 from app.routes import admin, auth, client
 
-# App
+# Application instance
 app = FastAPI()
 
-# Rate limiter
-app.state.limiter = limiter
-
-
-# Too many requests
-@app.exception_handler(RateLimitExceeded)
-async def rate_limited(request, exc):
-    return JSONResponse({"detail": "Too many attempts, try again in a minute"}, status_code=429)
-
-# CORS
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=CORS_ORIGINS,
-    allow_credentials=True,
-    allow_methods=["GET", "POST", "PUT", "DELETE"],
-    allow_headers=["Authorization", "Content-Type"],
-)
+# Middleware
+add_rate_limit(app)
+add_cors(app)
 
 # Routes
 app.include_router(auth.router)

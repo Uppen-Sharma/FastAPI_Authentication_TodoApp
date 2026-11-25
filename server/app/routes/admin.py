@@ -1,10 +1,8 @@
-from fastapi import APIRouter, Depends, HTTPException
-from app.config import db
-from app.models import TodoCreate, TodoUpdate, User
-from app.security import require_role
+from fastapi import APIRouter, Depends
 
-# Admins only
-require_admin = require_role("admin")
+from app.controllers import admin_controller, client_controller
+from app.middleware.auth import require_admin
+from app.models import TodoCreate, TodoUpdate, User
 
 # Admin routes
 router = APIRouter(
@@ -14,40 +12,25 @@ router = APIRouter(
 )
 
 
-# Check todo exists
-def find_todo(todo_id: int) -> dict:
-    res = db.get(f"/todos/{todo_id}")
-    if res.status_code != 200:
-        raise HTTPException(404, "Todo not found")
-    return res.json()
-
-
 # All todos with owners
 @router.get("/todos")
 def all_todos():
-    usernames = {u["id"]: u["username"] for u in db.get("/users").json()}
-    return [
-        {**todo, "owner": usernames.get(todo["user_id"], "unknown")}
-        for todo in db.get("/todos").json()
-    ]
+    return admin_controller.all_todos()
 
 
-# Add todo
+# Add own todo
 @router.post("/todos", status_code=201)
 def create_todo(data: TodoCreate, user: User = Depends(require_admin)):
-    todo = {"user_id": user.id, "title": data.title, "done": False}
-    return db.post("/todos", json=todo).json()
+    return client_controller.create_todo(data, user)
 
 
 # Update any todo
 @router.put("/todos/{todo_id}")
 def update_any_todo(todo_id: int, data: TodoUpdate):
-    find_todo(todo_id)
-    return db.patch(f"/todos/{todo_id}", json={"done": data.done}).json()
+    return admin_controller.update_any_todo(todo_id, data)
 
 
 # Delete any todo
 @router.delete("/todos/{todo_id}", status_code=204)
 def delete_any_todo(todo_id: int):
-    find_todo(todo_id)
-    db.delete(f"/todos/{todo_id}")
+    admin_controller.delete_any_todo(todo_id)
