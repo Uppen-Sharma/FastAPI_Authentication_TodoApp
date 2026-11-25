@@ -19,11 +19,11 @@ from app.config import (
 )
 from app.models import User
 
-# Password hashing and token creation/validation for authentication
+# Password hashing and token reader
 password_hash = PasswordHash.recommended()
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
 
-# Create new access token for a user with a given user ID, session ID, and expiration time
+# Access token
 def create_access_token(user_id: int, sid: str) -> str:
     exp = datetime.now(timezone.utc) + timedelta(minutes=ACCESS_MINUTES)
     return jwt.encode(
@@ -32,7 +32,7 @@ def create_access_token(user_id: int, sid: str) -> str:
         algorithm=ALGORITHM,
     )
 
-# Create new refresh token for a user with a given user ID and optional session start time
+# Refresh token
 def create_refresh_token(
     user_id: int, session_start: datetime | None = None
 ) -> tuple[str, str, datetime]:
@@ -42,7 +42,7 @@ def create_refresh_token(
         now + timedelta(days=REFRESH_DAYS),
         session_start + timedelta(days=SESSION_MAX_DAYS),
     )
-    # The Session ID itself is created if it did not exist and verified from the db for SESSION_MAX_DAYS validation.
+    # New session ID
     jti = uuid.uuid4().hex
     token = jwt.encode(
         {
@@ -57,7 +57,7 @@ def create_refresh_token(
     )
     return token, jti, exp
 
-# Find a session row that is still usable: it exists and was not replaced longer ago than the grace period
+# Check session is active
 def get_live_session(session_id: str) -> dict | None:
     res = db.get(f"/refresh_tokens/{session_id}")
     if res.status_code != 200:
@@ -70,7 +70,7 @@ def get_live_session(session_id: str) -> dict | None:
             return None
     return session
 
-# Get the current user from the access token, validate and check if session is still valid
+# Get logged in user
 def get_current_user(token: str = Depends(oauth2_scheme)) -> User:
     try:
         payload = jwt.decode(token, ACCESS_SECRET, algorithms=[ALGORITHM])
@@ -82,9 +82,9 @@ def get_current_user(token: str = Depends(oauth2_scheme)) -> User:
         res.raise_for_status()
     except (jwt.PyJWTError, KeyError, ValueError, httpx.HTTPError):
         raise HTTPException(401, "Invalid or expired token")
-    return User(**res.json())#unpack/clear
+    return User(**res.json())  # Drops password hash
 
-# Requires a user role to access a route
+# Check user role
 def require_role(*roles: str):
     def checker(user: User = Depends(get_current_user)) -> User:
         if user.role not in roles:

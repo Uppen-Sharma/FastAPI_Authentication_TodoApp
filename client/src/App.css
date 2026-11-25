@@ -142,3 +142,13 @@ a {
   font-size: 18px;
   margin: 28px 0 4px;
 }
+
+.owner h3 {
+  font-size: 16px;
+  color: var(--accent);
+  margin: 16px 0 4px;
+}
+
+.owner .todos {
+  padding-left: 12px;
+}

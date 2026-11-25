@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { register } from "../api";
 
-// Sign up page: asks for a username and a password typed twice
+// Sign up page
 export default function Register() {
   const navigate = useNavigate();
   const [username, setUsername] = useState("");
@@ -10,7 +10,7 @@ export default function Register() {
   const [confirm, setConfirm] = useState("");
   const [error, setError] = useState("");
 
-  // Check the passwords match, create the account, then go to the login page
+  // Match passwords, then register
   const onSubmit = async (e) => {
     e.preventDefault();
     setError("");

@@ -7,12 +7,12 @@ import Register from "./pages/Register";
 import Restricted from "./pages/Restricted";
 import Todos from "./pages/Todos";
 
-// Root component: keeps the logged in user and decides which page to show
+// App and routes
 function App() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // On page load, the refresh cookie (if there is one) restores the session
+  // Restore session on load
   useEffect(() => {
     restoreSession()
       .then(setUser)
@@ -20,10 +20,10 @@ function App() {
       .finally(() => setLoading(false));
   }, []);
 
-  // When another tab logs in or out, reload this tab so it shows the right user
+  // Reload on login or logout in another tab
   useEffect(() => onAuthChange(() => window.location.reload()), []);
 
-  // Wait for the session check so a logged in user does not see the login page
+  // Wait for session check
   if (loading) return <p>Loading...</p>;
 
   return (

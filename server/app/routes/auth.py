@@ -9,7 +9,7 @@ from app.security import create_access_token, create_refresh_token, get_live_ses
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
-# Issue new access token using the user ID and Session ID if it exists and is valid
+# Issue both tokens
 def issue_tokens(user: dict, response: Response, session_start: datetime | None = None) -> AuthResponse:
     refresh, jti, exp = create_refresh_token(user["id"], session_start)
     db.post("/refresh_tokens", json={"id": jti, "user_id": user["id"], "exp": exp.isoformat()})
@@ -22,13 +22,13 @@ def issue_tokens(user: dict, response: Response, session_start: datetime | None 
         samesite="lax",
         path="/auth",
     )
-    # Return the access token and user information in the response
+    # Return access token and user
     return AuthResponse(
         access_token=create_access_token(user["id"], jti),
         user=User(id=user["id"], username=user["username"], role=user.get("role", "client")),
     )
 
-# Delete a user's expired sessions and sessions replaced longer ago than the grace period, runs on login and refresh
+# Remove dead sessions
 def delete_expired_sessions(user_id: int) -> None:
     now = datetime.now(timezone.utc)
     sessions = db.get("/refresh_tokens", params={"user_id": user_id}).json()
@@ -42,7 +42,7 @@ def delete_expired_sessions(user_id: int) -> None:
         if expired or replaced_too_long_ago:
             db.delete(f"/refresh_tokens/{session['id']}")
 
-# Register a new user with a unique username and hashed password
+# Register
 @router.post("/register", response_model=User, status_code=201)
 @limiter.limit(AUTH_RATE_LIMIT)
 def register(request: Request, data: RegisterRequest):
@@ -55,7 +55,7 @@ def register(request: Request, data: RegisterRequest):
     ).json()
     return User(id=user["id"], username=user["username"], role=user["role"])
 
-# Login a user with a valid username and password, issue new access and refresh tokens
+# Login
 @router.post("/login", response_model=AuthResponse)
 @limiter.limit(AUTH_RATE_LIMIT)
 def login(request: Request, response: Response, form: OAuth2PasswordRequestForm = Depends()):
@@ -65,7 +65,7 @@ def login(request: Request, response: Response, form: OAuth2PasswordRequestForm 
     delete_expired_sessions(users[0]["id"])
     return issue_tokens(users[0], response)
 
-# restoreSession() triggers this to issue new tokens if the refresh token is valid, returns nothing without a cookie and a 401 if it is invalid or expired
+# Refresh tokens
 @router.post("/refresh", response_model=AuthResponse | None)
 def refresh(response: Response, refresh_token: str | None = Cookie(default=None)):
     if refresh_token is None:
@@ -82,7 +82,7 @@ def refresh(response: Response, refresh_token: str | None = Cookie(default=None)
     if session is None:
         db.delete(f"/refresh_tokens/{payload['jti']}")
         raise HTTPException(401, "Session expired")
-    # Do not delete the old session yet, mark it as replaced so it stops working after the grace period
+    # Keep old session for a short time
     if session.get("replaced_at") is None:
         db.patch(
             f"/refresh_tokens/{payload['jti']}",
@@ -94,7 +94,7 @@ def refresh(response: Response, refresh_token: str | None = Cookie(default=None)
     session_start = datetime.fromtimestamp(payload["start"], timezone.utc)
     return issue_tokens(user, response, session_start)
 
-# Logout endpoint to delete the refresh token from the database and clear the cookie
+# Logout
 @router.post("/logout", status_code=204)
 def logout(response: Response, refresh_token: str | None = Cookie(default=None)):
     try:

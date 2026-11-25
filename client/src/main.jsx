@@ -4,7 +4,7 @@ import { BrowserRouter } from "react-router-dom";
 import "./index.css";
 import App from "./App.jsx";
 
-// Start the app, BrowserRouter turns on the URL based pages
+// Start app
 createRoot(document.getElementById("root")).render(
   <StrictMode>
     <BrowserRouter>

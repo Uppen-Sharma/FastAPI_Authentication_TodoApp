@@ -1,13 +1,13 @@
-// Backend address, set in client/.env
+// Backend URL
 const API_URL = import.meta.env.VITE_API_URL;
 
-// The access token lives in memory only, it is gone when the page reloads
+// Kept in memory only
 let accessToken = null;
 
-// Channel used to tell the other tabs when someone logs in or out
+// Sync between tabs
 const authChannel = new BroadcastChannel("auth");
 
-// Run a callback when another tab logs in or out, returns a function to stop listening
+// Listen to other tabs
 export function onAuthChange(callback) {
   authChannel.onmessage = callback;
   return () => {
@@ -15,7 +15,7 @@ export function onAuthChange(callback) {
   };
 }
 
-// Send a request to the backend with the access token and the refresh cookie
+// Add token and cookie
 function send(path, options = {}) {
   const isJson = typeof options.body === "string";
   return fetch(`${API_URL}${path}`, {
@@ -28,16 +28,16 @@ function send(path, options = {}) {
   });
 }
 
-// Read the error message the backend sent back
+// Read error message
 async function errorMessage(res) {
   const body = await res.json().catch(() => null);
   return typeof body?.detail === "string" ? body.detail : `Error ${res.status}`;
 }
 
-// Refresh tokens work only once, so all callers share one refresh request
+// One refresh at a time
 let refreshing = null;
 
-// Trade the refresh cookie for a new access token (and a new refresh cookie)
+// Get new tokens
 function refresh() {
   refreshing ??= send("/auth/refresh", { method: "POST" })
     .then(async (res) => {
@@ -53,7 +53,7 @@ function refresh() {
   return refreshing;
 }
 
-// Call the backend, and if the access token expired (401) refresh once and retry
+// On 401, refresh and retry
 export async function api(path, options = {}) {
   let res = await send(path, options);
 
@@ -72,7 +72,7 @@ export async function api(path, options = {}) {
   return res.status === 204 ? undefined : res.json();
 }
 
-// Log in with a username and password, keep the access token and tell other tabs
+// Login
 export async function login(username, password) {
   const data = await api("/auth/login", {
     method: "POST",
@@ -83,7 +83,7 @@ export async function login(username, password) {
   return data.user;
 }
 
-// Create a new account
+// Register
 export function register(username, password) {
   return api("/auth/register", {
     method: "POST",
@@ -91,12 +91,12 @@ export function register(username, password) {
   });
 }
 
-//Triggers the refresh endpoint to keep new access tokens coming in for active sessions.
+// Restore session
 export async function restoreSession() {
   return (await refresh()).user;
 }
 
-// End the session on the server, clear the access token and tell other tabs
+// Logout
 export async function logout() {
   await api("/auth/logout", { method: "POST" }).catch(() => {});
   accessToken = null;

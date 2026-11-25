@@ -1,27 +1,28 @@
 import { useEffect, useState } from "react";
 import { api, logout } from "../api";
 
-// Todo page: a client manages their own todos, an admin also sees every other user's todos
+// Todo page
 export default function Todos({ user, onLogout }) {
   const isAdmin = user.role === "admin";
-  // Clients and admins each have their own routes on the backend
+  // Routes by role
   const base = isAdmin ? "/admin/todos" : "/client/todos";
   const [all, setAll] = useState([]);
   const [title, setTitle] = useState("");
   const [error, setError] = useState("");
 
-  // Split the loaded todos into the user's own and the ones owned by other users
+  // Own and other todos
   const todos = all.filter((t) => t.user_id === user.id);
   const others = all.filter((t) => t.user_id !== user.id);
+  const owners = [...new Set(others.map((t) => t.owner))];
 
-  // Load the todos when the page opens
+  // Load todos
   useEffect(() => {
     api(base)
       .then(setAll)
       .catch((err) => setError(err.message));
   }, [base]);
 
-  // Run an action, then reload the todos so the page shows the latest data
+  // Run action and reload
   const run = async (action) => {
     setError("");
     try {
@@ -32,7 +33,7 @@ export default function Todos({ user, onLogout }) {
     }
   };
 
-  // Add a new todo for the logged in user
+  // Add todo
   const add = async (e) => {
     e.preventDefault();
     await run(() =>
@@ -41,7 +42,7 @@ export default function Todos({ user, onLogout }) {
     setTitle("");
   };
 
-  // Tick or untick a todo
+  // Tick todo
   const toggle = (t) =>
     run(() =>
       api(`${base}/${t.id}`, {
@@ -50,10 +51,10 @@ export default function Todos({ user, onLogout }) {
       }),
     );
 
-  // Delete a todo, an admin can delete any user's todo
+  // Delete todo
   const remove = (id) => run(() => api(`${base}/${id}`, { method: "DELETE" }));
 
-  // End the session on the server, then clear the user in the app
+  // Logout
   const onLogoutClick = async () => {
     await logout();
     onLogout();
@@ -105,22 +106,27 @@ export default function Todos({ user, onLogout }) {
       {isAdmin && (
         <>
           <h2 className="section">Other users&apos; todos</h2>
-          <ul className="todos">
-            {others.map((t) => (
-              <li key={t.id} className={t.done ? "done" : ""}>
-                <input type="checkbox" checked={t.done} disabled />
-                <span>
-                  {t.title} <span className="muted">({t.owner})</span>
-                </span>
-                <button className="danger" onClick={() => remove(t.id)}>
-                  Delete
-                </button>
-              </li>
-            ))}
-            {others.length === 0 && (
-              <li className="muted empty">No todos from other users.</li>
-            )}
-          </ul>
+          {owners.map((owner) => (
+            <div key={owner} className="owner">
+              <h3>{owner}</h3>
+              <ul className="todos">
+                {others
+                  .filter((t) => t.owner === owner)
+                  .map((t) => (
+                    <li key={t.id} className={t.done ? "done" : ""}>
+                      <input type="checkbox" checked={t.done} disabled />
+                      <span>{t.title}</span>
+                      <button className="danger" onClick={() => remove(t.id)}>
+                        Delete
+                      </button>
+                    </li>
+                  ))}
+              </ul>
+            </div>
+          ))}
+          {owners.length === 0 && (
+            <p className="muted">No todos from other users.</p>
+          )}
         </>
       )}
     </div>

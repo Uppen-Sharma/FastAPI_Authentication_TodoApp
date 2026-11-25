@@ -2,14 +2,14 @@ import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { login } from "../api";
 
-// Login page: sends the username and password and hands the user to the app
+// Login page
 export default function Login({ onLogin }) {
   const location = useLocation();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
 
-  // Submit the form and show the error if the login fails
+  // Submit login
   const onSubmit = async (e) => {
     e.preventDefault();
     setError("");

@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 
-// Shown for unknown URLs and pages the user is not allowed to see
+// Blocked page
 export default function Restricted() {
   return (
     <div className="card">
