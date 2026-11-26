@@ -11,8 +11,8 @@ export default function Register() {
   const [error, setError] = useState("");
 
   // Match passwords, then register
-  const onSubmit = async (e) => {
-    e.preventDefault();
+  const onSubmit = async (event) => {
+    event.preventDefault();
     setError("");
     if (password !== confirm) {
       setError("Passwords do not match");
@@ -21,8 +21,8 @@ export default function Register() {
     try {
       await register(username, password);
       navigate("/login", { state: { registered: true } });
-    } catch (err) {
-      setError(err.message);
+    } catch (requestError) {
+      setError(requestError.message);
     }
   };
 
@@ -32,21 +32,21 @@ export default function Register() {
       <input
         placeholder="Username"
         value={username}
-        onChange={(e) => setUsername(e.target.value)}
+        onChange={(event) => setUsername(event.target.value)}
         required
       />
       <input
         type="password"
         placeholder="Password"
         value={password}
-        onChange={(e) => setPassword(e.target.value)}
+        onChange={(event) => setPassword(event.target.value)}
         required
       />
       <input
         type="password"
         placeholder="Retype password"
         value={confirm}
-        onChange={(e) => setConfirm(e.target.value)}
+        onChange={(event) => setConfirm(event.target.value)}
         required
       />
       <button type="submit">Create account</button>

@@ -10,13 +10,13 @@ export default function Login({ onLogin }) {
   const [error, setError] = useState("");
 
   // Submit login
-  const onSubmit = async (e) => {
-    e.preventDefault();
+  const onSubmit = async (event) => {
+    event.preventDefault();
     setError("");
     try {
       onLogin(await login(username, password));
-    } catch (err) {
-      setError(err.message);
+    } catch (requestError) {
+      setError(requestError.message);
     }
   };
 
@@ -29,14 +29,14 @@ export default function Login({ onLogin }) {
       <input
         placeholder="Username"
         value={username}
-        onChange={(e) => setUsername(e.target.value)}
+        onChange={(event) => setUsername(event.target.value)}
         required
       />
       <input
         type="password"
         placeholder="Password"
         value={password}
-        onChange={(e) => setPassword(e.target.value)}
+        onChange={(event) => setPassword(event.target.value)}
         required
       />
       <button type="submit">Login</button>

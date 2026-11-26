@@ -13,11 +13,15 @@ from app.config import (
 )
 
 
+# Token keys are standard JWT names, keep them as they are
+# sub = user ID, sid = session ID, jti = JWT ID, exp = expiry
+
+
 # Access token
-def create_access_token(user_id: int, sid: str) -> str:
-    exp = datetime.now(timezone.utc) + timedelta(minutes=ACCESS_MINUTES)
+def create_access_token(user_id: int, session_id: str) -> str:
+    expiry = datetime.now(timezone.utc) + timedelta(minutes=ACCESS_MINUTES)
     return jwt.encode(
-        {"sub": str(user_id), "sid": sid, "type": "access", "exp": exp},
+        {"sub": str(user_id), "sid": session_id, "type": "access", "exp": expiry},
         ACCESS_SECRET,
         algorithm=ALGORITHM,
     )
@@ -29,24 +33,24 @@ def create_refresh_token(
 ) -> tuple[str, str, datetime]:
     now = datetime.now(timezone.utc)
     session_start = session_start or now
-    exp = min(
+    expiry = min(
         now + timedelta(days=REFRESH_DAYS),
         session_start + timedelta(days=SESSION_MAX_DAYS),
     )
     # New session ID
-    jti = uuid.uuid4().hex
+    jwt_id = uuid.uuid4().hex
     token = jwt.encode(
         {
             "sub": str(user_id),
-            "jti": jti,
+            "jti": jwt_id,
             "type": "refresh",
             "start": int(session_start.timestamp()),
-            "exp": exp,
+            "exp": expiry,
         },
         REFRESH_SECRET,
         algorithm=ALGORITHM,
     )
-    return token, jti, exp
+    return token, jwt_id, expiry
 
 
 # Verify token and type

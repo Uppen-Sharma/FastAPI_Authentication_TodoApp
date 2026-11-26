@@ -20,17 +20,17 @@ def all_todos():
 
 # Add own todo
 @router.post("/todos", status_code=201)
-def create_todo(data: TodoCreate, user: User = Depends(require_admin)):
-    return client_controller.create_todo(data, user)
+def create_todo(todo_data: TodoCreate, user: User = Depends(require_admin)):
+    return client_controller.create_todo(todo_data, user)
 
 
 # Update own todo only
 @router.put("/todos/{todo_id}")
-def update_todo(todo_id: int, data: TodoUpdate, user: User = Depends(require_admin)):
-    return client_controller.update_todo(todo_id, data, user)
+def update_todo(todo_id: int, todo_data: TodoUpdate, user: User = Depends(require_admin)):
+    return client_controller.update_todo(todo_id, todo_data, user)
 
 
 # Delete any todo
 @router.delete("/todos/{todo_id}", status_code=204)
-def delete_any_todo(todo_id: int):
+def delete_any_todo(todo_id: int,):
     admin_controller.delete_any_todo(todo_id)

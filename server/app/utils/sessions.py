@@ -1,7 +1,7 @@
 from datetime import datetime, timezone
 
 from app.config import REFRESH_GRACE_SECONDS
-from app.utils.db import db
+from app.utils.db import database
 
 
 # Long time since session was replaced
@@ -16,18 +16,18 @@ def is_stale(session: dict) -> bool:
 
 # Check session is active
 def get_live_session(session_id: str) -> dict | None:
-    res = db.get(f"/refresh_tokens/{session_id}")
-    if res.status_code != 200:
+    db_response = database.get(f"/refresh_tokens/{session_id}")
+    if db_response.status_code != 200:
         return None
-    session = res.json()
+    session = db_response.json()
     return None if is_stale(session) else session
 
 
 # Remove dead sessions
 def delete_expired_sessions(user_id: int) -> None:
     now = datetime.now(timezone.utc)
-    sessions = db.get("/refresh_tokens", params={"user_id": user_id}).json()
+    sessions = database.get("/refresh_tokens", params={"user_id": user_id}).json()
     for session in sessions:
-        expired = datetime.fromisoformat(session["exp"]) < now
+        expired = datetime.fromisoformat(session["expiry"]) < now
         if expired or is_stale(session):
-            db.delete(f"/refresh_tokens/{session['id']}")
+            database.delete(f"/refresh_tokens/{session['id']}")

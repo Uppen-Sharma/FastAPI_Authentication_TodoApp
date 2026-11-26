@@ -5,7 +5,7 @@ from fastapi.security import OAuth2PasswordBearer
 
 from app.config import ACCESS_SECRET
 from app.models import User
-from app.utils.db import db
+from app.utils.db import database
 from app.utils.sessions import get_live_session
 from app.utils.tokens import decode_token
 
@@ -19,11 +19,11 @@ def get_current_user(token: str = Depends(oauth2_scheme)) -> User:
         payload = decode_token(token, ACCESS_SECRET, "access")
         if get_live_session(payload["sid"]) is None:
             raise ValueError
-        res = db.get(f"/users/{payload['sub']}")
-        res.raise_for_status()
+        db_response = database.get(f"/users/{payload['sub']}")
+        db_response.raise_for_status()
     except (jwt.PyJWTError, KeyError, ValueError, httpx.HTTPError):
         raise HTTPException(401, "Invalid or expired token")
-    return User(**res.json())  # Drops password hash
+    return User(**db_response.json())  # Drops password hash
 
 
 # Check user role

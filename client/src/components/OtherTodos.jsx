@@ -2,7 +2,7 @@ import TodoItem from "./TodoItem";
 
 // Other users' todos, grouped by owner
 export default function OtherTodos({ todos, onRemove }) {
-  const owners = [...new Set(todos.map((t) => t.owner))];
+  const owners = [...new Set(todos.map((todo) => todo.owner))];
 
   return (
     <>
@@ -12,9 +12,9 @@ export default function OtherTodos({ todos, onRemove }) {
           <h3>{owner}</h3>
           <ul className="todos">
             {todos
-              .filter((t) => t.owner === owner)
-              .map((t) => (
-                <TodoItem key={t.id} todo={t} onRemove={onRemove} />
+              .filter((todo) => todo.owner === owner)
+              .map((todo) => (
+                <TodoItem key={todo.id} todo={todo} onRemove={onRemove} />
               ))}
           </ul>
         </div>

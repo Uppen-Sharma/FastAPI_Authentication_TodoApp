@@ -9,53 +9,54 @@ import TodoList from "../components/TodoList";
 export default function Todos({ user, onLogout }) {
   const isAdmin = user.role === "admin";
   // Routes by role
-  const base = isAdmin ? "/admin/todos" : "/client/todos";
-  const [all, setAll] = useState([]);
+  const todosPath = isAdmin ? "/admin/todos" : "/client/todos";
+  const [allTodos, setAllTodos] = useState([]);
   const [title, setTitle] = useState("");
   const [error, setError] = useState("");
 
   // Own and other todos
-  const todos = all.filter((t) => t.user_id === user.id);
-  const others = all.filter((t) => t.user_id !== user.id);
+  const todos = allTodos.filter((todo) => todo.user_id === user.id);
+  const otherTodos = allTodos.filter((todo) => todo.user_id !== user.id);
 
   // Load todos
   useEffect(() => {
-    api(base)
-      .then(setAll)
-      .catch((err) => setError(err.message));
-  }, [base]);
+    api(todosPath)
+      .then(setAllTodos)
+      .catch((requestError) => setError(requestError.message));
+  }, [todosPath]);
 
   // Run action and reload
-  const run = async (action) => {
+  const runAndReload = async (action) => {
     setError("");
     try {
       await action();
-      setAll(await api(base));
-    } catch (err) {
-      setError(err.message);
+      setAllTodos(await api(todosPath));
+    } catch (requestError) {
+      setError(requestError.message);
     }
   };
 
   // Add todo
-  const add = async (e) => {
-    e.preventDefault();
-    await run(() =>
-      api(base, { method: "POST", body: JSON.stringify({ title }) }),
+  const addTodo = async (event) => {
+    event.preventDefault();
+    await runAndReload(() =>
+      api(todosPath, { method: "POST", body: JSON.stringify({ title }) }),
     );
     setTitle("");
   };
 
   // Tick todo
-  const toggle = (t) =>
-    run(() =>
-      api(`${base}/${t.id}`, {
+  const toggleTodo = (todo) =>
+    runAndReload(() =>
+      api(`${todosPath}/${todo.id}`, {
         method: "PUT",
-        body: JSON.stringify({ done: !t.done }),
+        body: JSON.stringify({ done: !todo.done }),
       }),
     );
 
   // Delete todo
-  const remove = (id) => run(() => api(`${base}/${id}`, { method: "DELETE" }));
+  const deleteTodo = (todoId) =>
+    runAndReload(() => api(`${todosPath}/${todoId}`, { method: "DELETE" }));
 
   // Logout
   const onLogoutClick = async () => {
@@ -66,13 +67,13 @@ export default function Todos({ user, onLogout }) {
   return (
     <div className="card">
       <TodoHeader user={user} onLogout={onLogoutClick} />
-      <TodoForm title={title} onTitleChange={setTitle} onSubmit={add} />
+      <TodoForm title={title} onTitleChange={setTitle} onSubmit={addTodo} />
 
       {error && <p className="error">{error}</p>}
 
-      <TodoList todos={todos} onToggle={toggle} onRemove={remove} />
+      <TodoList todos={todos} onToggle={toggleTodo} onRemove={deleteTodo} />
 
-      {isAdmin && <OtherTodos todos={others} onRemove={remove} />}
+      {isAdmin && <OtherTodos todos={otherTodos} onRemove={deleteTodo} />}
     </div>
   );
 }

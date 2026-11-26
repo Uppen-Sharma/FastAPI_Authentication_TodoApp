@@ -9,7 +9,7 @@ limiter = Limiter(key_func=get_remote_address)
 
 
 # Rate limit exceeded handler
-async def rate_limited(request: Request, exc: Exception):
+async def rate_limited(request: Request, exception: Exception):
     return JSONResponse({"detail": "Too many attempts, try again in a minute"}, status_code=429)
 
 

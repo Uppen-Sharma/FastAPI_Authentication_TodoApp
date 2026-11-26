@@ -13,15 +13,15 @@ router = APIRouter(prefix="/auth", tags=["auth"])
 # Register
 @router.post("/register", response_model=User, status_code=201)
 @limiter.limit(AUTH_RATE_LIMIT)
-def register(request: Request, data: RegisterRequest):
-    return auth_controller.register_user(data)
+def register(request: Request, register_data: RegisterRequest):
+    return auth_controller.register_user(register_data)
 
 
 # Login
 @router.post("/login", response_model=AuthResponse)
 @limiter.limit(AUTH_RATE_LIMIT)
-def login(request: Request, response: Response, form: OAuth2PasswordRequestForm = Depends()):
-    return auth_controller.login_user(form.username, form.password, response)
+def login(request: Request, response: Response, form_data: OAuth2PasswordRequestForm = Depends()):
+    return auth_controller.login_user(form_data.username, form_data.password, response)
 
 
 # Refresh tokens

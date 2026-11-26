@@ -28,9 +28,9 @@ function send(path, options = {}) {
 }
 
 // Reads the error message
-async function errorMessage(res) {
-  const body = await res.json().catch(() => null);
-  return typeof body?.detail === "string" ? body.detail : `Error ${res.status}`;
+async function errorMessage(response) {
+  const body = await response.json().catch(() => null);
+  return typeof body?.detail === "string" ? body.detail : `Error ${response.status}`;
 }
 
 // One refresh at a time
@@ -39,9 +39,9 @@ let refreshing = null;
 // Get new tokens / new refresh token assigned to memory
 function refresh() {
   refreshing ??= send("/auth/refresh", { method: "POST" })
-    .then(async (res) => {
-      if (!res.ok) throw new Error(await errorMessage(res));
-      const data = await res.json();
+    .then(async (response) => {
+      if (!response.ok) throw new Error(await errorMessage(response));
+      const data = await response.json();
       if (!data) throw new Error("Not Logged in");
       accessToken = data.access_token;
       return data;
@@ -54,12 +54,12 @@ function refresh() {
 
 // On 401, refresh and retry
 export async function api(path, options = {}) {
-  let res = await send(path, options);
+  let response = await send(path, options);
 
-  if (res.status === 401 && accessToken) {
+  if (response.status === 401 && accessToken) {
     try {
       await refresh();
-      res = await send(path, options);
+      response = await send(path, options);
     } catch {
       accessToken = null;
       window.location.assign("/login");
@@ -67,8 +67,8 @@ export async function api(path, options = {}) {
     }
   }
 
-  if (!res.ok) throw new Error(await errorMessage(res));
-  return res.status === 204 ? undefined : res.json();
+  if (!response.ok) throw new Error(await errorMessage(response));
+  return response.status === 204 ? undefined : response.json();
 }
 
 // Login route

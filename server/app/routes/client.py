@@ -20,14 +20,14 @@ def list_todos(user: User = Depends(require_client)):
 
 # Add todo
 @router.post("/todos", status_code=201)
-def create_todo(data: TodoCreate, user: User = Depends(require_client)):
-    return client_controller.create_todo(data, user)
+def create_todo(todo_data: TodoCreate, user: User = Depends(require_client)):
+    return client_controller.create_todo(todo_data, user)
 
 
 # Update todo
 @router.put("/todos/{todo_id}")
-def update_todo(todo_id: int, data: TodoUpdate, user: User = Depends(require_client)):
-    return client_controller.update_todo(todo_id, data, user)
+def update_todo(todo_id: int, todo_data: TodoUpdate, user: User = Depends(require_client)):
+    return client_controller.update_todo(todo_id, todo_data, user)
 
 
 # Delete todo

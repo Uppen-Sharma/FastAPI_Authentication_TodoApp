@@ -5,7 +5,7 @@ export default function TodoForm({ title, onTitleChange, onSubmit }) {
       <input
         placeholder="New todo"
         value={title}
-        onChange={(e) => onTitleChange(e.target.value)}
+        onChange={(event) => onTitleChange(event.target.value)}
         maxLength={100}
         pattern=".*\S.*"
         title="Todo cannot be blank"
