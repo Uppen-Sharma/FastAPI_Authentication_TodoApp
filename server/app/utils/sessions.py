@@ -4,7 +4,8 @@ from app.config import REFRESH_GRACE_SECONDS
 from app.utils.db import db
 
 
-# Replaced and past grace period
+# Long time since session was replaced
+# make sure that session was in grace but not for too long 
 def is_stale(session: dict) -> bool:
     replaced_at = session.get("replaced_at")
     if replaced_at is None:

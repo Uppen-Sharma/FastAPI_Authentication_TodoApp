@@ -1,7 +1,6 @@
-// Backend URL
 const API_URL = import.meta.env.VITE_API_URL;
 
-// Kept in memory only
+// memory only
 let accessToken = null;
 
 // Sync between tabs
@@ -15,7 +14,7 @@ export function onAuthChange(callback) {
   };
 }
 
-// Add token and cookie
+// Add token and cookie to fetch request
 function send(path, options = {}) {
   const isJson = typeof options.body === "string";
   return fetch(`${API_URL}${path}`, {
@@ -28,7 +27,7 @@ function send(path, options = {}) {
   });
 }
 
-// Read error message
+// Reads the error message
 async function errorMessage(res) {
   const body = await res.json().catch(() => null);
   return typeof body?.detail === "string" ? body.detail : `Error ${res.status}`;
@@ -37,7 +36,7 @@ async function errorMessage(res) {
 // One refresh at a time
 let refreshing = null;
 
-// Get new tokens
+// Get new tokens / new refresh token assigned to memory
 function refresh() {
   refreshing ??= send("/auth/refresh", { method: "POST" })
     .then(async (res) => {
@@ -72,7 +71,7 @@ export async function api(path, options = {}) {
   return res.status === 204 ? undefined : res.json();
 }
 
-// Login
+// Login route
 export async function login(username, password) {
   const data = await api("/auth/login", {
     method: "POST",
@@ -83,7 +82,7 @@ export async function login(username, password) {
   return data.user;
 }
 
-// Register
+// Register route
 export function register(username, password) {
   return api("/auth/register", {
     method: "POST",
@@ -91,12 +90,12 @@ export function register(username, password) {
   });
 }
 
-// Restore session
+// Refresh/restore session route
 export async function restoreSession() {
   return (await refresh()).user;
 }
 
-// Logout
+// Logout route
 export async function logout() {
   await api("/auth/logout", { method: "POST" }).catch(() => {});
   accessToken = null;

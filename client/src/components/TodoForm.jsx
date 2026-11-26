@@ -6,6 +6,9 @@ export default function TodoForm({ title, onTitleChange, onSubmit }) {
         placeholder="New todo"
         value={title}
         onChange={(e) => onTitleChange(e.target.value)}
+        maxLength={100}
+        pattern=".*\S.*"
+        title="Todo cannot be blank"
         required
       />
       <button type="submit">Add</button>

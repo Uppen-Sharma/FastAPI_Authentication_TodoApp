@@ -1,7 +1,7 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 
-# Sign up rules
+# rules
 class RegisterRequest(BaseModel):
     username: str = Field(min_length=3, max_length=30, pattern=r"^[A-Za-z0-9_]+$")
     password: str = Field(min_length=6, max_length=128)
@@ -20,9 +20,12 @@ class AuthResponse(BaseModel):
     user: User
 
 
-# New todo
+# todo title check
 class TodoCreate(BaseModel):
-    title: str
+    # Trim spaces
+    model_config = ConfigDict(str_strip_whitespace=True)
+
+    title: str = Field(min_length=1, max_length=100)
 
 
 # Tick todo

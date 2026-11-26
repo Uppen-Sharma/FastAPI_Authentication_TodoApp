@@ -24,10 +24,10 @@ def create_todo(data: TodoCreate, user: User = Depends(require_admin)):
     return client_controller.create_todo(data, user)
 
 
-# Update any todo
+# Update own todo only
 @router.put("/todos/{todo_id}")
-def update_any_todo(todo_id: int, data: TodoUpdate):
-    return admin_controller.update_any_todo(todo_id, data)
+def update_todo(todo_id: int, data: TodoUpdate, user: User = Depends(require_admin)):
+    return client_controller.update_todo(todo_id, data, user)
 
 
 # Delete any todo

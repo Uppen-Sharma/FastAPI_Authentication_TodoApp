@@ -5,7 +5,11 @@ from app.middleware.auth import require_client
 from app.models import TodoCreate, TodoUpdate, User
 
 # Client routes
-router = APIRouter(prefix="/client", tags=["client"])
+router = APIRouter(
+    prefix="/client",
+    tags=["client"],
+    dependencies=[Depends(require_client)],
+)
 
 
 # List todos

@@ -9,7 +9,7 @@ from app.utils.db import db
 from app.utils.sessions import get_live_session
 from app.utils.tokens import decode_token
 
-# Token reader
+# Token reader/swagger
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
 
 

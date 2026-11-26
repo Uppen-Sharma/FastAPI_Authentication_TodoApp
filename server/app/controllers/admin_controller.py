@@ -1,6 +1,5 @@
 from fastapi import HTTPException
 
-from app.models import TodoUpdate
 from app.utils.db import db
 
 
@@ -19,12 +18,6 @@ def all_todos() -> list:
         {**todo, "owner": usernames.get(todo["user_id"], "unknown")}
         for todo in db.get("/todos").json()
     ]
-
-
-# Update any todo
-def update_any_todo(todo_id: int, data: TodoUpdate) -> dict:
-    find_todo(todo_id)
-    return db.patch(f"/todos/{todo_id}", json={"done": data.done}).json()
 
 
 # Delete any todo

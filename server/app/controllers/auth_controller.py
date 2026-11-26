@@ -31,7 +31,7 @@ def issue_tokens(user: dict, response: Response, session_start: datetime | None 
     )
 
 
-# Register
+# Register new user
 def register_user(data: RegisterRequest) -> User:
     username = data.username.strip().lower()
     if db.get("/users", params={"username": username}).json():
@@ -43,7 +43,7 @@ def register_user(data: RegisterRequest) -> User:
     return User(id=user["id"], username=user["username"], role=user["role"])
 
 
-# Login
+# Login user
 def login_user(username: str, password: str, response: Response) -> AuthResponse:
     users = db.get("/users", params={"username": username.strip().lower()}).json()
     if not users or not password_hash.verify(password, users[0]["password_hash"]):
