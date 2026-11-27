@@ -30,7 +30,17 @@ function send(path, options = {}) {
 // Reads the error message
 async function errorMessage(response) {
   const body = await response.json().catch(() => null);
-  return typeof body?.detail === "string" ? body.detail : `Error ${response.status}`;
+  if (typeof body?.detail === "string") return body.detail;
+
+  // Validation errors come as a list
+  const issue = body?.detail?.[0];
+  if (!issue) return `Error ${response.status}`;
+  const name = String(issue.loc.at(-1));
+  const field = name.charAt(0).toUpperCase() + name.slice(1);
+  if (issue.type === "string_pattern_mismatch") {
+    return `${field} can only use letters, numbers and _`;
+  }
+  return issue.msg.replace("String", field);
 }
 
 // One refresh at a time

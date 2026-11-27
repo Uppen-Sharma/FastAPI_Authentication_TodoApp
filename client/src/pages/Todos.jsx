@@ -39,10 +39,11 @@ export default function Todos({ user, onLogout }) {
   // Add todo
   const addTodo = async (event) => {
     event.preventDefault();
-    await runAndReload(() =>
-      api(todosPath, { method: "POST", body: JSON.stringify({ title }) }),
-    );
-    setTitle("");
+    await runAndReload(async () => {
+      await api(todosPath, { method: "POST", body: JSON.stringify({ title }) });
+      // Clear only after it is saved
+      setTitle("");
+    });
   };
 
   // Tick todo
